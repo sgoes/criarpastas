@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Criar Pastas e Gerar ZIP</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <style>
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .button-container button {
+            margin-bottom: 10px;
+            flex: 1;
+            margin: 5px;
+        }
+        .highlight-button {
+            margin-top: 20px;
+            font-size: 1.25em;
+            padding: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Criar Pastas e Gerar ZIP</h1>
+        <div class="form-group">
+            <label for="input_text">Lista de nomes (um por linha):</label>
+            <textarea id="input_text" class="form-control" rows="10" placeholder="Digite a lista de nomes aqui..."></textarea>
+        </div>
+        <div class="button-container">
+            <button type="button" class="btn btn-secondary" onclick="pasteText()">Colar Texto</button>
+            <button type="button" class="btn btn-danger" onclick="clearText()">Apagar Texto</button>
+            <button type="button" class="btn btn-info" onclick="window.open('https://sgoes.github.io/renomear_ficheiros/', '_blank')">Renomear Ficheiros</button>
+        </div>
+        <button type="button" class="btn btn-primary btn-block highlight-button" onclick="createFoldersAndZip()">Criar Pastas e Gerar ZIP</button>
+    </div>
+
+    <script>
+        function createFoldersAndZip() {
+            const inputText = document.getElementById('input_text').value;
+            const folderNames = inputText.split('\n').map(name => name.trim()).filter(name => name !== '');
+
+            if (folderNames.length === 0) {
+                alert('Por favor, insira pelo menos um nome.');
+                return;
+            }
+
+            const zip = new JSZip();
+
+            folderNames.forEach(folderName => {
+                zip.folder(folderName);
+            });
+
+            zip.generateAsync({ type: 'blob' }).then(content => {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(content);
+                a.download = 'pastas.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+        }
+
+        function pasteText() {
+            navigator.clipboard.readText().then(text => {
+                document.getElementById('input_text').value = text;
+            }).catch(err => {
+                alert('Erro ao colar texto: ' + err);
+            });
+        }
+
+        function clearText() {
+            document.getElementById('input_text').value = '';
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+</body>
+
+</html>
